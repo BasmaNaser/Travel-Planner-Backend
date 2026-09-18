@@ -37,7 +37,7 @@ const destinationSchema = new mongoose.Schema(
     },
 
     ThingsToDo: {
-      type: String,
+      type: [String],
     },
 
     UserID: {

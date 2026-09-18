@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 
 const otpSchema = new mongoose.Schema(
@@ -5,8 +6,8 @@ const otpSchema = new mongoose.Schema(
         email: {
             type: String,
             required: [true, 'Email is required'],
-            match: [/^[a-z]{3,15}[0-9]{0,6}(@)(gmail\.com)$/, 'please enter a valid Email Address'],
-            lowercase: [true, 'please enter a valid Email Address'],
+            match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'please enter a valid Email Address'],
+            lowercase: true,
             trim: true
         },
 
@@ -31,6 +32,7 @@ const otpSchema = new mongoose.Schema(
             match: [/^(01)(1|2|0|5)[0-9]{8}$/, 'please enter a valid Phone Number'],
             trim: true
         },
+
         dob: {
             type: Date,
             required: [true, 'Date of birth is required'],
@@ -62,3 +64,4 @@ const otpSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('OTP', otpSchema);
+

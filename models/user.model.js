@@ -5,7 +5,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Email is required'],
         unique: [true, 'Email already exists'],
-        match: [/^[a-z]{3,15}[0-9]{0,6}(@)(gmail\.com)$/, 'please enter a valid Email Address'],
+        match: [
+            /^[a-zA-Z0-9._%+-]+@gmail\.com$/,
+            'please enter a valid Email Address'
+        ],
         lowercase: true,
         trim: true
     },
@@ -33,7 +36,7 @@ const userSchema = new mongoose.Schema({
 
     dob: {
         type: Date,
-        required: [true, 'Date of birth is required'],
+        required: [true, 'Date of birth is required']
     },
 
     about: String,
@@ -46,14 +49,14 @@ const userSchema = new mongoose.Schema({
         }
     },
 
-    // --- حقول صورة الملف الشخصي الجديدة ---
     profilePicture: {
         type: String,
-        default: "" // يخزن رابط الصورة على Cloudinary
+        default: ''
     },
+
     profilePicturePublicId: {
         type: String,
-        default: "" // يخزن الـ ID الخاص بحذف الصورة من Cloudinary
+        default: ''
     },
 
     userLocation: String,
@@ -64,7 +67,7 @@ const userSchema = new mongoose.Schema({
             values: ['user', 'admin'],
             message: 'Role must be either user or admin'
         },
-        default: 'user',
+        default: 'user'
     },
 
     isVerified: {
