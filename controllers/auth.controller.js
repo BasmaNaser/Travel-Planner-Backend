@@ -10,7 +10,7 @@ const sendResetPasswordEmail = require("../utils/sendResetPasswordEmail")
 const passRegExp= /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@%$&*^#])[a-zA-Z0-9@%$&*^#]{8,}$/
 let signupController = async function(req,res,next){
     try {
-        const { email, fullName, password, phone, dob } = req.body
+        const { email, fullName, password, phone, dob, role = 'user' } = req.body;
         if(!email||!fullName|| !password || !phone || !dob ){
             return next(new Apierror('All Field Is Required',400))
         }
@@ -25,11 +25,15 @@ let signupController = async function(req,res,next){
         if(!passRegExp.test(password)){
             return next(new Apierror('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character',400))
         }
+        const allowedRoles = ['user', 'admin'];
+        if (!allowedRoles.includes(role)) {
+            return next(new Apierror('Invalid role. Allowed roles are: user, admin', 400));
+        }
         const otp = generateOtp();
         const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
         const hashedPassword = await hashedPass(password)
         await OTP.deleteMany({email})
-        const otpData = await OTP.create({email,password:hashedPassword,phone,dob,fullName,otp,otpExpiresAt:expiresAt})
+        const otpData = await OTP.create({email,password:hashedPassword,phone,dob,fullName,role,otp,otpExpiresAt:expiresAt})
         const emailSended = await sendOtpEmail(otp,email)
         console.log(otpData);
         console.log(emailSended);

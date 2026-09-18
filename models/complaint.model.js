@@ -1,33 +1,32 @@
 const mongoose = require("mongoose");
 
-const complaintSchema = new mongoose.Schema(
+const contactSchema = new mongoose.Schema(
   {
-    MessageID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Message",
-      required: true,
-    },
-
-    UserID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
-    Subject: {
+    fullName: {
       type: String,
-      required: true,
+      required: [true, "Full name is required"],
+      trim: true,
     },
-
-    Status: {
+    email: {
       type: String,
-      enum: ["pending", "in_progress", "resolved", "rejected"],
+      required: [true, "Email is required"],
+      lowercase: true,
+      trim: true,
+    },
+    subject: {
+      type: String,
+      required: [true, "Subject is required"],
+      trim: true,
+    },
+    message: {
+      type: String,
+      required: [true, "Message is required"],
+      trim: true,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "inProcess", "resolved"],
       default: "pending",
-    },
-
-    CreatedAt: {
-      type: Date,
-      default: Date.now,
     },
   },
   {
@@ -35,4 +34,4 @@ const complaintSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Complaint", complaintSchema);
+module.exports = mongoose.model("Contact", contactSchema);
