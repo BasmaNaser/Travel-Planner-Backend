@@ -1,24 +1,24 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+
 const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: [true, 'Email is required'],
-        unique: [true, 'Email already exsists'],
+        unique: [true, 'Email already exists'],
         match: [/^[a-z]{3,15}[0-9]{0,6}(@)(gmail\.com)$/, 'please enter a valid Email Address'],
-        lowercase: [true, 'please enter a valid Email Address'],
+        lowercase: true,
         trim: true
     },
 
     fullName: {
         type: String,
         required: [true, 'Full Name is required'],
-        match: [/^[a-zA-Z]{3,15}( )([a-zA-Z]{3,15}){1,3}$/, 'Name can only contain letters'],
         trim: true
     },
 
     password: {
         type: String,
-        required: [true, 'password is required'],
+        required: [true, 'Password is required'],
         minlength: [8, 'Password must be at least 8 characters'],
         trim: true
     },
@@ -30,27 +30,48 @@ const userSchema = new mongoose.Schema({
         match: [/^(01)(1|2|0|5)[0-9]{8}$/, 'please enter a valid Phone Number'],
         trim: true
     },
+
     dob: {
         type: Date,
         required: [true, 'Date of birth is required'],
     },
+
     about: String,
+
+    gender: {
+        type: String,
+        enum: {
+            values: ['Male', 'Female', 'Other'],
+            message: 'Gender must be Male, Female, or Other'
+        }
+    },
+
+    // --- حقول صورة الملف الشخصي الجديدة ---
+    profilePicture: {
+        type: String,
+        default: "" // يخزن رابط الصورة على Cloudinary
+    },
+    profilePicturePublicId: {
+        type: String,
+        default: "" // يخزن الـ ID الخاص بحذف الصورة من Cloudinary
+    },
+
     userLocation: String,
+
     role: {
         type: String,
-        enum:
-        {
+        enum: {
             values: ['user', 'admin'],
             message: 'Role must be either user or admin'
         },
         default: 'user',
     },
+
     isVerified: {
         type: Boolean,
         default: true
     }
-    
-},{timestamps:true});
 
+}, { timestamps: true });
 
-module.exports= mongoose.model('User',userSchema)
+module.exports = mongoose.model('User', userSchema);
