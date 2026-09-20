@@ -3,12 +3,17 @@ const app = express()
 const mongoose = require('mongoose')
 require('dotenv').config()
 const cookieParser = require('cookie-parser')
+const userRouter = require('./routes/user.route')//ِAseel
 const globalErrorHandling = require('./middlewares/globalErrorHandling')
 const port =process.env.PORT
 const authRouter = require('./routes/auth.route')
 const destinationRouter = require('./routes/destination.routes')
 const reviewRouter = require('./routes/review.route')
 const cors = require('cors')
+const bookingRouter = require("./routes/booking.route");//Aseel
+
+const dashboardRouter = require("./routes/dashboard.routes");//Aseel
+require("./models/ItineraryDay.model");//Aseel
 mongoose.connect('mongodb://localhost:27017/TravelPlanner')
 .then(()=>{
     console.log('Connection Running Successfuly on Database Travel Planner');
@@ -24,10 +29,13 @@ app.use(cors())
 app.use('/auth',authRouter)
 app.use('/destinations',destinationRouter)
 app.use('/reviews',reviewRouter)
+app.use('/users',userRouter)//Aseel
+app.use("/dashboard", dashboardRouter);//Aseel
+app.use("/bookings", bookingRouter); //Aseel
 app.use(globalErrorHandling)
 app.use('/',function(req,res){
     res.status(404).json({message:'Data Not Found'})
-})
+});
 app.listen(port,()=>{
     console.log(`Server Running Successfuly On Port ${port}`);
 })
