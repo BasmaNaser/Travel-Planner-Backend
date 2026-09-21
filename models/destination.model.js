@@ -16,6 +16,10 @@ const destinationSchema = new mongoose.Schema(
       type: String,
     },
 
+    Image: {
+      type: String,
+    },
+
     Category: {
       type: String,
     },

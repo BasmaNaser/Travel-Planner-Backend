@@ -8,6 +8,7 @@ const port =process.env.PORT
 const authRouter = require('./routes/auth.route')
 const destinationRouter = require('./routes/destination.routes')
 const reviewRouter = require('./routes/review.route')
+const bookingRoutes = require("./routes/booking.route");
 const cors = require('cors')
 mongoose.connect('mongodb://localhost:27017/TravelPlanner')
 .then(()=>{
@@ -24,6 +25,7 @@ app.use(cors())
 app.use('/auth',authRouter)
 app.use('/destinations',destinationRouter)
 app.use('/reviews',reviewRouter)
+app.use("/api/bookings", bookingRoutes);
 app.use(globalErrorHandling)
 app.use('/',function(req,res){
     res.status(404).json({message:'Data Not Found'})
