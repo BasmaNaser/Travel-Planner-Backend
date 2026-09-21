@@ -24,6 +24,7 @@ app.use(cookieParser())
 app.use(cors())
 app.use('/auth',authRouter)
 app.use('/destinations',destinationRouter)
+
 app.use('/reviews',reviewRouter)
 app.use("/api/bookings", bookingRoutes);
 app.use(globalErrorHandling)
