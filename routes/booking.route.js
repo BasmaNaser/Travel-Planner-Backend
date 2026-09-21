@@ -3,18 +3,16 @@ const express = require("express");
 const router = express.Router();
 
 const protect =
-  require("../middleware/authMiddleware");
+  require("../middlewares/authMiddleware");
 
 const {
   createBooking,
-} = require("../controllers/bookingController");
-
+} = require("../controllers/booking.controller");
 
 router.post(
   "/",
   protect,
   createBooking
 );
-
 
 module.exports = router;

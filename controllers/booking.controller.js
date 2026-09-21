@@ -1,5 +1,5 @@
-const Booking = require("../models/booking");
-const ItineraryDay = require("../models/ItineraryDay");
+const Booking = require("../models/booking.model");
+const ItineraryDay = require("../models/ItineraryDay.model");
 
 
 const createBooking = async (req, res) => {
