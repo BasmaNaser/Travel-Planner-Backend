@@ -9,6 +9,7 @@ const authRouter = require('./routes/auth.route')
 const destinationRouter = require('./routes/destination.routes')
 const reviewRouter = require('./routes/review.route')
 const bookingRoutes = require("./routes/booking.route");
+const itineraryDayRouter = require("./routes/itineraryDay.routes");
 const cors = require('cors')
 mongoose.connect('mongodb://localhost:27017/TravelPlanner')
 .then(()=>{
@@ -24,6 +25,7 @@ app.use(cookieParser())
 app.use(cors())
 app.use('/auth',authRouter)
 app.use('/destinations',destinationRouter)
+app.use("/itinerary-days", itineraryDayRouter);
 
 app.use('/reviews',reviewRouter)
 app.use("/api/bookings", bookingRoutes);

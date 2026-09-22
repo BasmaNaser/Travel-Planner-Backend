@@ -13,13 +13,13 @@ const {
 
 
 // Create Review
-router.post("/", authentication, createReview);
+router.post("/", createReview);
 
 
 // Get Reviews By Destination
 router.get(
   "/:destinationId",
-  authentication,
+  // authentication,
   getReviewsByDestination
 );
 
@@ -27,7 +27,7 @@ router.get(
 // Update My Review
 router.patch(
   "/:id",
-  authentication,
+  // authentication,
   updateReview
 );
 
@@ -35,7 +35,7 @@ router.patch(
 // Delete My Review
 router.delete(
   "/:id",
-  authentication,
+  // authentication,
   deleteReview
 );
 
