@@ -11,10 +11,8 @@ const {
   deleteReview,
 } = require("../controllers/review.controller");
 
-
 // Create Review
 router.post("/", authentication, createReview);
-
 
 // Get Reviews By Destination
 router.get(
@@ -23,7 +21,6 @@ router.get(
   getReviewsByDestination
 );
 
-
 // Update My Review
 router.patch(
   "/:id",
@@ -31,13 +28,11 @@ router.patch(
   updateReview
 );
 
-
 // Delete My Review
 router.delete(
   "/:id",
   authentication,
   deleteReview
 );
-
 
 module.exports = router;

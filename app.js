@@ -13,6 +13,9 @@ const destinationRouter = require('./routes/destination.routes')
 const reviewRouter = require('./routes/review.route')
 
 const chatRouter = require('./routes/chat.route')
+// const bookingRoutes = require("./routes/booking.route");  
+const itineraryDayRouter = require("./routes/itineraryDay.routes"); //chat Aseel
+
 
 const cors = require('cors')
 const bookingRouter = require("./routes/booking.route");//Aseel
@@ -31,44 +34,6 @@ mongoose.connect('mongodb://localhost:27017/TravelPlanner')
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors())
-// <<<<<<< HEAD
-// app.use('/auth',authRouter)
-// app.use('/destinations',destinationRouter)
-
-// app.use('/reviews',reviewRouter)
-// // <<<<<<< HEAD
-// // app.use("/api/bookings", bookingRoutes);
-// // =======
-// // app.use('/users',userRouter)//Aseel
-// // app.use("/dashboard", dashboardRouter);//Aseel
-// // app.use("/bookings", bookingRouter); //Aseel
-// // >>>>>>> Aseel-backend
-
-// app.use('/users', userRouter)
-// app.use("/dashboard", dashboardRouter) //chat Aseel
-// app.use("/bookings", bookingRouter)
-
-
-// app.use(globalErrorHandling)
-// app.use('/',function(req,res){
-//     res.status(404).json({message:'Data Not Found'})
-// });
-// app.listen(port,()=>{
-// =======
-// app.use('/auth', authRouter)
-// app.use('/destinations', destinationRouter)
-// app.use('/reviews', reviewRouter)
-// app.use('/chat', chatRouter)
-// app.use(globalErrorHandling)
-// app.use('/', function (req, res) {
-//     res.status(404).json({ message: 'Data Not Found' })
-// })
-
-// const server = http.createServer(app)
-// initSocket(server)
-// server.listen(port, () => {
-// >>>>>>> Ahmed
-
 
 app.use('/auth', authRouter)
 
@@ -84,6 +49,8 @@ app.use("/dashboard", dashboardRouter)
 
 app.use("/bookings", bookingRouter)
 
+app.use("/itinerary-days", itineraryDayRouter)
+
 app.use(globalErrorHandling)
 
 app.use('/', function (req, res) {
@@ -95,8 +62,5 @@ const server = http.createServer(app)
 initSocket(server)
 
 server.listen(port, () => {
-    console.log(`Server Running Successfuly On Port ${port}`);
+    console.log(`Server Running Successfuly On Port ${port}`)
 })
-
-//     console.log(`Server Running Successfuly On Port ${port}`);
-// })

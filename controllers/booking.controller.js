@@ -1,12 +1,38 @@
-// const Booking = require("../models/booking.model");
 // <<<<<<< HEAD
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const Booking = require("../models/booking.model");
 // const ItineraryDay = require("../models/ItineraryDay.model");
 
+// const createBooking = async (req, res, next) => {
 
+// const Booking = require("../models/booking.model");
+// const ItineraryDay = require("../models/ItineraryDay.model");
+// const Destination = require("../models/destination.model");
+
+
+// // ==============================
+// // Create Booking
+// // ==============================
 // const createBooking = async (req, res) => {
 
 //   try {
-
 //     const {
 //       NumberOfPeople,
 //       StartDate,
@@ -14,151 +40,85 @@
 //       ItineraryDayID,
 //     } = req.body;
 
-
-//     // ==========================
-//     // CHECK DATA
-//     // ==========================
-
 //     if (
 //       !NumberOfPeople ||
 //       !StartDate ||
 //       !EndDate ||
 //       !ItineraryDayID
 //     ) {
-
 //       return res.status(400).json({
 //         message: "All booking data is required",
 //       });
-
 //     }
 
-
-//     // ==========================
-//     // CHECK NUMBER
-//     // ==========================
-
 //     if (NumberOfPeople < 1) {
-
 //       return res.status(400).json({
 //         message: "Number of people must be at least 1",
 //       });
-
 //     }
 
+//     const startDate = new Date(StartDate);
+//     const endDate = new Date(EndDate);
 
-//     // ==========================
-//     // CHECK DATES
-//     // ==========================
 
-//     const startDate =
-//       new Date(StartDate);
-
-//     const endDate =
-//       new Date(EndDate);
-
+//     if (isNaN(startDate) || isNaN(endDate)) {
+//       return res.status(400).json({
+//         message: "Invalid date",
+//       });
+//     }
 
 //     if (startDate > endDate) {
-
 //       return res.status(400).json({
 //         message: "End date must be after start date",
 //       });
-
 //     }
 
 
-//     // ==========================
-//     // GET ITINERARY
-//     // ==========================
+//     const itineraryDay = await ItineraryDay.findById(ItineraryDayID);
 
-//     const itineraryDay =
-//       await ItineraryDay.findById(
-//         ItineraryDayID
-//       );
+//     const itineraryDay = await ItineraryDay.findById(
+//       ItineraryDayID
+//     );
 
 
 //     if (!itineraryDay) {
-
 //       return res.status(404).json({
 //         message: "Itinerary day not found",
 //       });
-
 //     }
 
 
-//     // ==========================
-//     // CALCULATE PRICE
-//     // ==========================
+//     // const totalPrice = itineraryDay.Price * NumberOfPeople;
+
+//     const destination = await Destination.findById(
+//       itineraryDay.DestinationID
+//     );
+
+//     if (!destination) {
+//       return res.status(404).json({
+//         message: "Destination not found",
+//       });
+//     }
+
+//     if (destination.PricePerPerson == null) {
+//       return res.status(400).json({
+//         message: "Destination price is not available",
+//       });
+//     }
 
 //     const totalPrice =
-//       itineraryDay.Price * NumberOfPeople;
-
-
-//     // ==========================
-//     // CREATE BOOKING
-//     // ==========================
-
-//     const booking =
-//       await Booking.create({
-
-//         UserID: req.user._id,
-
-//         NumberOfPeople,
-
-//         StartDate: startDate,
-
-//         EndDate: endDate,
-
-//         PriceOf: totalPrice,
-
-//         ItineraryDayID,
-
-//         Status: "pending",
-
-//       });
-
-
-//     // ==========================
-//     // RESPONSE
-//     // ==========================
-
-//     res.status(201).json({
-
-//       message: "Booking created successfully",
-
-//       booking,
-
-//     });
-
-//   } catch (error) {
-
-//     console.log(error);
-
-//     res.status(500).json({
-//       message: "Server error",
-//     });
-
-//   }
-// };
-
-
-// module.exports = {
-//   createBooking,
-// };
-// =======
-
-// const createBooking = async (req, res, next) => {
-//   try {
-//     const { NumberOfPeople, StartDate, EndDate, PriceOf, ItineraryDayID } =
-//       req.body;
+//       destination.PricePerPerson * NumberOfPeople;
 
 //     const booking = await Booking.create({
-//       NumberOfPeople,
-//       StartDate,
-//       EndDate,
-//       PriceOf,
-//       ItineraryDayID,
 //       UserID: req.user.id,
+//       NumberOfPeople,
+//       StartDate: startDate,
+//       EndDate: endDate,
+//       PriceOf: totalPrice,
+//       ItineraryDayID,
+//       Status: "pending",
 //     });
+
 
 //     res.status(201).json({
 //       success: true,
@@ -207,9 +167,38 @@
 //     if (!booking) {
 //       return res.status(404).json({
 //         success: false,
+
+//     // return res.status(201).json({
+//     //   message: "Booking created successfully",
+//     //   booking,
+//     // });
+
+//   } catch (error) {
+//     console.log(error);
+
+//     return res.status(500).json({
+//       message: "Server error",
+//     });
+//   }
+// };
+
+
+// // ==============================
+// // Update Booking
+// // ==============================
+// const updateBooking = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const booking = await Booking.findById(id);
+
+//     if (!booking) {
+//       return res.status(404).json({
+
 //         message: "Booking not found",
 //       });
 //     }
+
 
 //     res.status(200).json({
 //       success: true,
@@ -230,15 +219,139 @@
 //       {
 //         new: true,
 //         runValidators: true,
-//       },
+//       }
 //     );
 
 //     if (!booking) {
 //       return res.status(404).json({
 //         success: false,
+
+//     // لو NumberOfPeople اتبعت
+//     if (req.body.NumberOfPeople !== undefined) {
+
+//       if (req.body.NumberOfPeople < 1) {
+//         return res.status(400).json({
+//           message: "Number of people must be at least 1",
+//         });
+//       }
+
+//       booking.NumberOfPeople =
+//         req.body.NumberOfPeople;
+//     }
+
+
+//     // لو StartDate اتبعت
+//     if (req.body.StartDate !== undefined) {
+//       const startDate = new Date(
+//         req.body.StartDate
+//       );
+
+//       if (isNaN(startDate)) {
+//         return res.status(400).json({
+//           message: "Invalid StartDate",
+//         });
+//       }
+
+//       booking.StartDate = startDate;
+//     }
+
+
+//     // لو EndDate اتبعت
+//     if (req.body.EndDate !== undefined) {
+//       const endDate = new Date(
+//         req.body.EndDate
+//       );
+
+//       if (isNaN(endDate)) {
+//         return res.status(400).json({
+//           message: "Invalid EndDate",
+//         });
+//       }
+
+//       booking.EndDate = endDate;
+//     }
+
+
+//     // Check dates
+//     if (booking.StartDate > booking.EndDate) {
+//       return res.status(400).json({
+//         message: "End date must be after start date",
+//       });
+//     }
+
+
+//     // لو Status اتبعت
+//     if (req.body.Status !== undefined) {
+//       booking.Status = req.body.Status;
+//     }
+
+
+//     // Get itinerary day
+//     const itineraryDay =
+//       await ItineraryDay.findById(
+//         booking.ItineraryDayID
+//       );
+
+//     if (!itineraryDay) {
+//       return res.status(404).json({
+//         message: "Itinerary day not found",
+//       });
+//     }
+
+
+//     // Get destination
+//     const destination =
+//       await Destination.findById(
+//         itineraryDay.DestinationID
+//       );
+
+//     if (!destination) {
+//       return res.status(404).json({
+//         message: "Destination not found",
+//       });
+//     }
+
+
+//     // Recalculate price
+//     booking.PriceOf =
+//       destination.PricePerPerson *
+//       booking.NumberOfPeople;
+
+
+//     await booking.save();
+
+
+//     return res.status(200).json({
+//       message: "Booking updated successfully",
+//       booking,
+//     });
+
+//   } catch (error) {
+//     console.log(error);
+
+//     return res.status(500).json({
+//       message: "Server error",
+//     });
+//   }
+// };
+
+
+// // ==============================
+// // Delete One Booking
+// // ==============================
+// const deleteBooking = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const booking = await Booking.findById(id);
+
+//     if (!booking) {
+//       return res.status(404).json({
+
 //         message: "Booking not found",
 //       });
 //     }
+
 
 //     res.status(200).json({
 //       success: true,
@@ -292,21 +405,64 @@
 //   updateBookingStatus,
 //   getBookingStats,
 // };
-// >>>>>>> Aseel-backend
+
+//     await Booking.findByIdAndDelete(id);
+
+//     return res.status(200).json({
+//       message: "Booking deleted successfully",
+//     });
+
+//   } catch (error) {
+//     console.log(error);
+
+//     return res.status(500).json({
+//       message: "Server error",
+//     });
+//   }
+// };
 
 
+// // ==============================
+// // Batch Delete Bookings
+// // ==============================
+// const batchDeleteBookings = async (req, res) => {
+//   try {
+//     const { ids } = req.body;
+
+//     if (!Array.isArray(ids) || ids.length === 0) {
+//       return res.status(400).json({
+//         message: "Please provide booking IDs",
+//       });
+//     }
+
+//     const result = await Booking.deleteMany({
+//       _id: { $in: ids },
+//     });
+
+//     return res.status(200).json({
+//       message: "Bookings deleted successfully",
+//       deletedCount: result.deletedCount,
+//     });
+
+//   } catch (error) {
+//     console.log(error);
+
+//     return res.status(500).json({
+//       message: "Server error",
+//     });
+//   }
+// };
 
 
-
-
-
-
-
-
-
-
-
-
+// // ==============================
+// // Export
+// // ==============================
+// module.exports = {
+//   createBooking,
+//   updateBooking,
+//   deleteBooking,
+//   batchDeleteBookings,
+// };
 
 
 
@@ -315,7 +471,11 @@
 
 const Booking = require("../models/booking.model");
 const ItineraryDay = require("../models/ItineraryDay.model");
+const Destination = require("../models/destination.model");
 
+// ==============================
+// Create Booking
+// ==============================
 const createBooking = async (req, res, next) => {
   try {
     const {
@@ -345,6 +505,12 @@ const createBooking = async (req, res, next) => {
     const startDate = new Date(StartDate);
     const endDate = new Date(EndDate);
 
+    if (isNaN(startDate) || isNaN(endDate)) {
+      return res.status(400).json({
+        message: "Invalid date",
+      });
+    }
+
     if (startDate > endDate) {
       return res.status(400).json({
         message: "End date must be after start date",
@@ -359,7 +525,24 @@ const createBooking = async (req, res, next) => {
       });
     }
 
-    const totalPrice = itineraryDay.Price * NumberOfPeople;
+    const destination = await Destination.findById(
+      itineraryDay.DestinationID
+    );
+
+    if (!destination) {
+      return res.status(404).json({
+        message: "Destination not found",
+      });
+    }
+
+    if (destination.PricePerPerson == null) {
+      return res.status(400).json({
+        message: "Destination price is not available",
+      });
+    }
+
+    const totalPrice =
+      destination.PricePerPerson * NumberOfPeople;
 
     const booking = await Booking.create({
       UserID: req.user.id,
@@ -371,7 +554,7 @@ const createBooking = async (req, res, next) => {
       Status: "pending",
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Booking created successfully",
       data: booking,
@@ -381,6 +564,9 @@ const createBooking = async (req, res, next) => {
   }
 };
 
+// ==============================
+// Get All Bookings
+// ==============================
 const getAllBookings = async (req, res, next) => {
   try {
     const bookings = await Booking.find()
@@ -393,7 +579,7 @@ const getAllBookings = async (req, res, next) => {
         },
       });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       count: bookings.length,
       data: bookings,
@@ -403,6 +589,9 @@ const getAllBookings = async (req, res, next) => {
   }
 };
 
+// ==============================
+// Get Booking By ID
+// ==============================
 const getBookingById = async (req, res, next) => {
   try {
     const booking = await Booking.findById(req.params.id)
@@ -422,7 +611,7 @@ const getBookingById = async (req, res, next) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: booking,
     });
@@ -431,6 +620,9 @@ const getBookingById = async (req, res, next) => {
   }
 };
 
+// ==============================
+// Update Booking Status
+// ==============================
 const updateBookingStatus = async (req, res, next) => {
   try {
     const { Status } = req.body;
@@ -451,7 +643,7 @@ const updateBookingStatus = async (req, res, next) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Booking status updated successfully",
       data: booking,
@@ -461,6 +653,9 @@ const updateBookingStatus = async (req, res, next) => {
   }
 };
 
+// ==============================
+// Get Booking Stats
+// ==============================
 const getBookingStats = async (req, res, next) => {
   try {
     const totalBookings = await Booking.countDocuments();
@@ -481,7 +676,7 @@ const getBookingStats = async (req, res, next) => {
       Status: "completed",
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: {
         totalBookings,
@@ -496,10 +691,178 @@ const getBookingStats = async (req, res, next) => {
   }
 };
 
+// ==============================
+// Update Booking
+// ==============================
+const updateBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await Booking.findById(id);
+
+    if (!booking) {
+      return res.status(404).json({
+        message: "Booking not found",
+      });
+    }
+
+    if (req.body.NumberOfPeople !== undefined) {
+      if (req.body.NumberOfPeople < 1) {
+        return res.status(400).json({
+          message: "Number of people must be at least 1",
+        });
+      }
+
+      booking.NumberOfPeople = req.body.NumberOfPeople;
+    }
+
+    if (req.body.StartDate !== undefined) {
+      const startDate = new Date(req.body.StartDate);
+
+      if (isNaN(startDate)) {
+        return res.status(400).json({
+          message: "Invalid StartDate",
+        });
+      }
+
+      booking.StartDate = startDate;
+    }
+
+    if (req.body.EndDate !== undefined) {
+      const endDate = new Date(req.body.EndDate);
+
+      if (isNaN(endDate)) {
+        return res.status(400).json({
+          message: "Invalid EndDate",
+        });
+      }
+
+      booking.EndDate = endDate;
+    }
+
+    if (booking.StartDate > booking.EndDate) {
+      return res.status(400).json({
+        message: "End date must be after start date",
+      });
+    }
+
+    if (req.body.Status !== undefined) {
+      booking.Status = req.body.Status;
+    }
+
+    const itineraryDay = await ItineraryDay.findById(
+      booking.ItineraryDayID
+    );
+
+    if (!itineraryDay) {
+      return res.status(404).json({
+        message: "Itinerary day not found",
+      });
+    }
+
+    const destination = await Destination.findById(
+      itineraryDay.DestinationID
+    );
+
+    if (!destination) {
+      return res.status(404).json({
+        message: "Destination not found",
+      });
+    }
+
+    if (destination.PricePerPerson == null) {
+      return res.status(400).json({
+        message: "Destination price is not available",
+      });
+    }
+
+    booking.PriceOf =
+      destination.PricePerPerson * booking.NumberOfPeople;
+
+    await booking.save();
+
+    return res.status(200).json({
+      message: "Booking updated successfully",
+      booking,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
+// ==============================
+// Delete One Booking
+// ==============================
+const deleteBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await Booking.findById(id);
+
+    if (!booking) {
+      return res.status(404).json({
+        message: "Booking not found",
+      });
+    }
+
+    await Booking.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      message: "Booking deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
+// ==============================
+// Batch Delete Bookings
+// ==============================
+const batchDeleteBookings = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        message: "Please provide booking IDs",
+      });
+    }
+
+    const result = await Booking.deleteMany({
+      _id: { $in: ids },
+    });
+
+    return res.status(200).json({
+      message: "Bookings deleted successfully",
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
+// ==============================
+// Export
+// ==============================
 module.exports = {
   createBooking,
   getAllBookings,
   getBookingById,
   updateBookingStatus,
   getBookingStats,
+  updateBooking,
+  deleteBooking,
+  batchDeleteBookings,
 };
