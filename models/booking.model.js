@@ -40,6 +40,11 @@ const bookingSchema = new mongoose.Schema(
       ],
       default: "pending",
     },
+    UserID: {  //Aseel
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
 
     ItineraryDayID: {
       type: mongoose.Schema.Types.ObjectId,
@@ -49,7 +54,7 @@ const bookingSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.model("Booking", bookingSchema);

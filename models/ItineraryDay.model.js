@@ -14,6 +14,10 @@ const itineraryDaySchema = new mongoose.Schema(
     Activities: {
       type: String,
     },
+     Price: {
+      type: Number,
+      required: true,
+    },
 
     DestinationID: {
       type: mongoose.Schema.Types.ObjectId,
