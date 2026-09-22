@@ -12,26 +12,26 @@ const {
 } = require("../controllers/review.controller");
 
 // Create Review
-router.post("/", authentication, createReview);
+router.post("/", createReview);
 
 // Get Reviews By Destination
 router.get(
   "/:destinationId",
-  authentication,
+  // authentication,
   getReviewsByDestination
 );
 
 // Update My Review
 router.patch(
   "/:id",
-  authentication,
+  // authentication,
   updateReview
 );
 
 // Delete My Review
 router.delete(
   "/:id",
-  authentication,
+  // authentication,
   deleteReview
 );
 

@@ -15,6 +15,9 @@ const {
   batchDeleteBookings,
 } = require("../controllers/booking.controller");
 
+// ==============================
+// Create Booking
+// ==============================
 router.post(
   "/",
   authentication,
@@ -22,6 +25,10 @@ router.post(
   createBooking
 );
 
+// ==============================
+// Get All Bookings
+// Admin only
+// ==============================
 router.get(
   "/",
   authentication,
@@ -29,6 +36,10 @@ router.get(
   getAllBookings
 );
 
+// ==============================
+// Get Booking Stats
+// Admin only
+// ==============================
 router.get(
   "/stats",
   authentication,
@@ -36,6 +47,10 @@ router.get(
   getBookingStats
 );
 
+// ==============================
+// Get Booking By ID
+// Admin only
+// ==============================
 router.get(
   "/:id",
   authentication,
@@ -43,6 +58,10 @@ router.get(
   getBookingById
 );
 
+// ==============================
+// Update Booking Status
+// Admin only
+// ==============================
 router.patch(
   "/:id/status",
   authentication,
@@ -50,18 +69,28 @@ router.patch(
   updateBookingStatus
 );
 
+// ==============================
+// Update Booking
+// ==============================
 router.patch(
   "/:id",
   authentication,
   updateBooking
 );
 
+// ==============================
+// Batch Delete Bookings
+// IMPORTANT: /batch BEFORE /:id
+// ==============================
 router.delete(
   "/batch",
   authentication,
   batchDeleteBookings
 );
 
+// ==============================
+// Delete One Booking
+// ==============================
 router.delete(
   "/:id",
   authentication,
