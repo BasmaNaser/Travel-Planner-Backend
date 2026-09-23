@@ -18,7 +18,7 @@ const bookingRouter = require("./routes/booking.route")
 const dashboardRouter = require("./routes/dashboard.routes")
 require("./models/ItineraryDay.model")
 
-mongoose.connect('mongodb://localhost:27017/TravelPlanner')
+mongoose.connect(process.env.MONGO_URL)
     .then(() => {
         console.log('Connection Running Successfuly on Database Travel Planner');
     })
