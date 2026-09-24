@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
         user: process.env.USER_EMAIL,
         pass: process.env.USER_PASS
     }
-});
+})
 
 async function sendOtpEmail(otp, email) {
     const emailSended = await transporter.sendMail({
