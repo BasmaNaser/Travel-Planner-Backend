@@ -18,6 +18,9 @@ const {
   updateProfilePictureController,
   deleteProfilePictureController,
   createUser,getAllUsers,getUserById,deleteUser,
+  getAllUsersAndAdmins,
+  getAllComplaintsController,
+  updateComplaintStatusController
 } = require("../controllers/user.controller");
 const { upload } = require("../utils/multer");
 userRouter.post(
@@ -76,7 +79,8 @@ userRouter.delete(
   deleteProfilePictureController,
 );
 userRouter.post("/", authentication, authorization("admin"), createUser);
-userRouter.get("/", authentication, authorization("admin"), getAllUsers);
+userRouter.get("/", getAllUsers);
+userRouter.get("/all", getAllUsersAndAdmins);
 userRouter.get(
     '/:id',
     authentication,
@@ -88,5 +92,20 @@ userRouter.delete(
     authentication,
     authorization('admin'),
     deleteUser
+);
+userRouter.get(
+  "/all-complaints",
+  authentication,
+  authorization('admin'),
+  getAllComplaintsController
+);
+
+
+// Update complaint status - Admin
+userRouter.patch(
+  "complaint/:id/status",
+  authentication,
+  authorization('admin'),
+  updateComplaintStatusController
 );
 module.exports = userRouter;
