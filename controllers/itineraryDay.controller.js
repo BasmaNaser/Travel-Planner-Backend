@@ -7,6 +7,7 @@ const createItineraryDay = async (req, res) => {
       DayNumber,
       Title,
       Activities,
+      Price,
       DestinationID,
     } = req.body;
 
@@ -22,6 +23,7 @@ const createItineraryDay = async (req, res) => {
       DayNumber,
       Title,
       Activities,
+      Price,
       DestinationID,
     });
 

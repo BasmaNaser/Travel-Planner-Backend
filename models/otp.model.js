@@ -14,10 +14,9 @@ const otpSchema = new mongoose.Schema(
         fullName: {
             type: String,
             required: [true, 'Full Name is required'],
-match: [
-  /^[a-zA-Z]{3,15}( [a-zA-Z]{3,15}){1,3}$/,
-  'Name can only contain letters'
-],            trim: true
+            // match: [/^[a-zA-Z]{3,15}( )([a-zA-Z]{3,15}){1,3}$/, 'Name can only contain letters'],
+            match: [/^[a-zA-Z ]+$/, 'Name can only contain letters'],
+            trim: true
         },
 
         password: {

@@ -266,6 +266,7 @@ let getAllUsers = async function (req, res, next) {
     next(error);
   }
 };
+
 let getAllUsersAndAdmins = async function (req, res, next) {
   try {
     const users = await Users.find().select("-password");
@@ -325,13 +326,14 @@ let deleteUser = async function (req, res, next) {
         next(error);
     }
 };
-
 let getAllComplaintsController = async function (req, res, next) {
+
   try {
+
     const complaints = await Complaint.find()
       .populate("userId", "fullName email phone profilePicture")
       .sort({ createdAt: -1 });
-      
+
     res.status(200).json({
       success: true,
       count: complaints.length,
@@ -339,14 +341,19 @@ let getAllComplaintsController = async function (req, res, next) {
     });
 
   } catch (error) {
+
     console.error("GET ALL COMPLAINTS ERROR:", error);
     next(error);
+
   }
+
 };
 
 
 let updateComplaintStatusController = async function (req, res, next) {
+
   try {
+
     const { status } = req.body;
 
     const allowedStatuses = [
@@ -389,15 +396,14 @@ let updateComplaintStatusController = async function (req, res, next) {
 
   } catch (error) {
 
-    console.error(
-      "❌ UPDATE STATUS ERROR:",
-      error
-    );
-
+    console.error("❌ UPDATE STATUS ERROR:", error);
     next(error);
+
   }
+
 };
 module.exports = {
+
   createContactController,
   getMyContactController,
   deleteAccountController,
@@ -406,9 +412,14 @@ module.exports = {
   updateUserPasswordController,
   updateProfilePictureController,
   deleteProfilePictureController,
+
   createUser,
-  getAllUsers,getUserById,deleteUser,
+  getAllUsers,
+  getUserById,
+  deleteUser,
+
   getAllUsersAndAdmins,
   getAllComplaintsController,
   updateComplaintStatusController
+
 };

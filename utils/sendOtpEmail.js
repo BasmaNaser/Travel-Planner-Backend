@@ -176,4 +176,5 @@ async function sendOtpEmail(otp, email) {
     return emailSended
 }
 
+
 module.exports = sendOtpEmail

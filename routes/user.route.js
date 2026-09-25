@@ -21,6 +21,7 @@ const {
   getAllUsersAndAdmins,
   getAllComplaintsController,
   updateComplaintStatusController
+
 } = require("../controllers/user.controller");
 const { upload } = require("../utils/multer");
 userRouter.post(
@@ -39,12 +40,14 @@ userRouter.get(
   getMyContactController,
 );
 
+
 userRouter.get(
   "/all-complaints",
   authentication,
   authorization('admin'),
   getAllComplaintsController
 );
+
 
 userRouter.get(
   "/profile",
@@ -88,8 +91,12 @@ userRouter.delete(
   deleteProfilePictureController,
 );
 userRouter.post("/", authentication, authorization("admin"), createUser);
+
 userRouter.get("/", getAllUsers);
 userRouter.get("/all", getAllUsersAndAdmins);
+
+// userRouter.get("/", authentication, authorization("admin"), getAllUsers);
+
 userRouter.get(
     '/:id',
     authentication,
@@ -111,4 +118,5 @@ userRouter.patch(
   authorization('admin'),
   updateComplaintStatusController
 );
+
 module.exports = userRouter;
