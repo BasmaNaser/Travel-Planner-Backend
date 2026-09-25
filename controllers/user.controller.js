@@ -266,6 +266,19 @@ let getAllUsers = async function (req, res, next) {
     next(error);
   }
 };
+let getAllUsersAndAdmins = async function (req, res, next) {
+  try {
+    const users = await Users.find().select("-password");
+
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      data: users,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 let getUserById = async function (req, res, next) {
     try {
@@ -313,6 +326,64 @@ let deleteUser = async function (req, res, next) {
     }
 };
 
+let getAllComplaintsController = async function (req, res, next) {
+  try {
+    const complaints = await Complaint.find()
+      .populate("userId", "fullName email phone")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: complaints.length,
+      data: complaints,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+let updateComplaintStatusController = async function (req, res, next) {
+  try {
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "pending",
+      "inProcess",
+      "resolved",
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return next(
+        new Apierror("Invalid complaint status", 400)
+      );
+    }
+
+    const complaint = await Complaint.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).populate("userId", "fullName email phone");
+
+    if (!complaint) {
+      return next(
+        new Apierror("Complaint Not Found", 404)
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Complaint status updated successfully",
+      data: complaint,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createContactController,
   getMyContactController,
@@ -324,4 +395,7 @@ module.exports = {
   deleteProfilePictureController,
   createUser,
   getAllUsers,getUserById,deleteUser,
+  getAllUsersAndAdmins,
+  getAllComplaintsController,
+  updateComplaintStatusController
 };
