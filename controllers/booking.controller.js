@@ -212,6 +212,42 @@ const getBookingById = async (
 };
 
 // ======================================================
+// GET MY BOOKINGS - USER
+// ======================================================
+
+const getMyBookings = async (req, res, next) => {
+  try {
+    const bookings = await Booking.find({
+      UserID: req.user.id,
+    })
+      .populate(
+        "DestinationID",
+        "Name Location Description Image Category Badge Duration PricePerPerson AvailableSeats ThingsToDo"
+      )
+      .populate({
+        path: "ItineraryDayID",
+        select:
+          "DayNumber Title Activities Price DestinationID",
+        populate: {
+          path: "DestinationID",
+          select:
+            "Name Location Description Image Category Badge Duration PricePerPerson ThingsToDo",
+        },
+      })
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: bookings.length,
+      data: bookings,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ======================================================
+
 // GET MY BOOKING BY ID - USER
 // ======================================================
 
@@ -694,6 +730,7 @@ module.exports = {
   createBooking,
   getAllBookings,
   getBookingById,
+  getMyBookings,       // 👈 ضيفي دي
   getMyBookingById,
   updateBookingStatus,
   payBooking,

@@ -11,6 +11,7 @@ const {
   createBooking,
   getAllBookings,
   getBookingById,
+  getMyBookings,       // 👈
   getMyBookingById,
   updateBookingStatus,
   payBooking,
@@ -73,6 +74,18 @@ router.get(
   authentication,
   authorization("user"),
   getMyBookingById
+);
+
+// ======================================================
+
+// GET MY BOOKINGS - USER
+// ======================================================
+
+router.get(
+  "/my-bookings",
+  authentication,
+  authorization("user"),
+  getMyBookings
 );
 
 // ======================================================
