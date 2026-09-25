@@ -28,8 +28,10 @@ mongoose.connect(process.env.MONGO_URL)
 
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors())
-
+app.use(cors({
+    origin: 'http://localhost:4200',
+    credentials: true
+}));
 app.use('/auth', authRouter)
 app.use('/destinations', destinationRouter)
 app.use('/reviews', reviewRouter)
