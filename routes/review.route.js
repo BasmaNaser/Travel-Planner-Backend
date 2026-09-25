@@ -1,3 +1,4 @@
+
 const express = require("express");
 
 const router = express.Router();
@@ -9,30 +10,57 @@ const {
   getReviewsByDestination,
   updateReview,
   deleteReview,
+  markDeletedReviewNoticeRead,
 } = require("../controllers/review.controller");
 
-// Create Review
-router.post("/", createReview);
-
+// =====================================
 // Get Reviews By Destination
+// PUBLIC - Login NOT Required
+// =====================================
 router.get(
   "/:destinationId",
-  // authentication,
   getReviewsByDestination
 );
 
+// =====================================
+// Create Review
+// LOGIN REQUIRED
+// =====================================
+router.post(
+  "/",
+  authentication,
+  createReview
+);
+
+// =====================================
+// Mark Deleted Review Notice As Read
+// LOGIN REQUIRED
+// =====================================
+router.patch(
+  "/notice/:id/read",
+  authentication,
+  markDeletedReviewNoticeRead
+);
+
+// =====================================
 // Update My Review
+// LOGIN REQUIRED
+// =====================================
 router.patch(
   "/:id",
-  // authentication,
+  authentication,
   updateReview
 );
 
-// Delete My Review
+// =====================================
+// Delete Review
+// LOGIN REQUIRED
+// =====================================
 router.delete(
   "/:id",
-  // authentication,
+  authentication,
   deleteReview
 );
 
 module.exports = router;
+

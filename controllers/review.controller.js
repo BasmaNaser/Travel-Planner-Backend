@@ -1,9 +1,18 @@
+
 const Review = require("../models/review.model");
 
+// =====================================
 // Create Review
+// LOGIN REQUIRED
+// =====================================
 const createReview = async (req, res, next) => {
   try {
-    const { Rating, Comment, Platform, DestinationID } = req.body;
+    const {
+      Rating,
+      Comment,
+      Platform,
+      DestinationID,
+    } = req.body;
 
     const review = await Review.create({
       Rating,
@@ -22,13 +31,22 @@ const createReview = async (req, res, next) => {
   }
 };
 
-
+// =====================================
 // Get Reviews By Destination
-const getReviewsByDestination = async (req, res, next) => {
+// PUBLIC - LOGIN NOT REQUIRED
+// =====================================
+const getReviewsByDestination = async (
+  req,
+  res,
+  next
+) => {
   try {
     const reviews = await Review.find({
       DestinationID: req.params.destinationId,
-    });
+      isDeleted: false,
+    })
+      .populate("UserID", "fullName email")
+      .sort({ createdAt: 1 });
 
     res.status(200).json({
       message: "Reviews fetched successfully",
@@ -39,16 +57,23 @@ const getReviewsByDestination = async (req, res, next) => {
   }
 };
 
-
+// =====================================
 // Update My Review
+// LOGIN REQUIRED
+// =====================================
 const updateReview = async (req, res, next) => {
   try {
-    const { Rating, Comment, Platform } = req.body;
+    const {
+      Rating,
+      Comment,
+      Platform,
+    } = req.body;
 
     const review = await Review.findOneAndUpdate(
       {
         _id: req.params.id,
         UserID: req.user.id,
+        isDeleted: false,
       },
       {
         Rating,
@@ -63,7 +88,8 @@ const updateReview = async (req, res, next) => {
 
     if (!review) {
       return res.status(404).json({
-        message: "Review not found or you are not allowed to update it",
+        message:
+          "Review not found or you are not allowed to update it",
       });
     }
 
@@ -76,20 +102,64 @@ const updateReview = async (req, res, next) => {
   }
 };
 
-
-// Delete My Review
+// =====================================
+// Delete Review
+// LOGIN REQUIRED
+// =====================================
 const deleteReview = async (req, res, next) => {
   try {
-    const review = await Review.findOneAndDelete({
-      _id: req.params.id,
-      UserID: req.user.id,
-    });
+    const review = await Review.findById(
+      req.params.id
+    );
 
     if (!review) {
       return res.status(404).json({
-        message: "Review not found or you are not allowed to delete it",
+        message: "Review not found",
       });
     }
+
+    if (review.isDeleted) {
+      return res.status(400).json({
+        message: "Review has already been deleted",
+      });
+    }
+
+    // =================================
+    // ADMIN DELETE
+    // =================================
+    if (req.user.role === "admin") {
+      review.isDeleted = true;
+
+      review.deletedReason =
+        "Your review was removed by an administrator because it did not meet our community guidelines.";
+
+      review.deletedAt = new Date();
+
+      review.deletedNoticeRead = false;
+
+      await review.save();
+
+      return res.status(200).json({
+        message:
+          "Review deleted by admin successfully",
+        review,
+      });
+    }
+
+    // =================================
+    // USER DELETE
+    // =================================
+    if (
+      review.UserID.toString() !==
+      req.user.id.toString()
+    ) {
+      return res.status(403).json({
+        message:
+          "You are not allowed to delete this review",
+      });
+    }
+
+    await review.deleteOne();
 
     res.status(200).json({
       message: "Review deleted successfully",
@@ -99,10 +169,52 @@ const deleteReview = async (req, res, next) => {
   }
 };
 
+// =====================================
+// Mark Deleted Review Notice As Read
+// LOGIN REQUIRED
+// =====================================
+const markDeletedReviewNoticeRead = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const review = await Review.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        UserID: req.user.id,
+        isDeleted: true,
+        deletedNoticeRead: false,
+      },
+      {
+        deletedNoticeRead: true,
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!review) {
+      return res.status(404).json({
+        message:
+          "Deleted review notice not found",
+      });
+    }
+
+    res.status(200).json({
+      message:
+        "Deleted review notice marked as read",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
   createReview,
   getReviewsByDestination,
   updateReview,
   deleteReview,
+  markDeletedReviewNoticeRead,
 };
+

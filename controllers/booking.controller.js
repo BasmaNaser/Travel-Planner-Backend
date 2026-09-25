@@ -1,10 +1,12 @@
+
 const Booking = require("../models/booking.model");
 const ItineraryDay = require("../models/ItineraryDay.model");
 const Destination = require("../models/destination.model");
 
-// ==============================
-// Create Booking
-// ==============================
+// ======================================================
+// CREATE BOOKING
+// ======================================================
+
 const createBooking = async (req, res, next) => {
   try {
     const {
@@ -12,13 +14,15 @@ const createBooking = async (req, res, next) => {
       StartDate,
       EndDate,
       ItineraryDayID,
+      DestinationID,
     } = req.body;
 
     if (
       !NumberOfPeople ||
       !StartDate ||
       !EndDate ||
-      !ItineraryDayID
+      !ItineraryDayID ||
+      !DestinationID
     ) {
       return res.status(400).json({
         message: "All booking data is required",
@@ -46,9 +50,8 @@ const createBooking = async (req, res, next) => {
       });
     }
 
-    const itineraryDay = await ItineraryDay.findById(
-      ItineraryDayID
-    );
+    const itineraryDay =
+      await ItineraryDay.findById(ItineraryDayID);
 
     if (!itineraryDay) {
       return res.status(404).json({
@@ -56,9 +59,8 @@ const createBooking = async (req, res, next) => {
       });
     }
 
-    const destination = await Destination.findById(
-      itineraryDay.DestinationID
-    );
+    const destination =
+      await Destination.findById(DestinationID);
 
     if (!destination) {
       return res.status(404).json({
@@ -66,49 +68,95 @@ const createBooking = async (req, res, next) => {
       });
     }
 
-    if (destination.PricePerPerson == null) {
+    if (
+      itineraryDay.DestinationID.toString() !==
+      DestinationID.toString()
+    ) {
       return res.status(400).json({
-        message: "Destination price is not available",
+        message:
+          "Itinerary day does not belong to this destination",
+      });
+    }
+
+    if (
+      destination.AvailableSeats <
+      NumberOfPeople
+    ) {
+      return res.status(400).json({
+        message: "Not enough available seats",
+        availableSeats:
+          destination.AvailableSeats,
+      });
+    }
+
+    if (
+      destination.PricePerPerson == null
+    ) {
+      return res.status(400).json({
+        message:
+          "Destination price is not available",
       });
     }
 
     const totalPrice =
-      destination.PricePerPerson * NumberOfPeople;
+      destination.PricePerPerson *
+      NumberOfPeople;
 
-    const booking = await Booking.create({
-      UserID: req.user.id,
-      NumberOfPeople,
-      StartDate: startDate,
-      EndDate: endDate,
-      PriceOf: totalPrice,
-      ItineraryDayID,
-      Status: "pending",
-    });
+    const booking =
+      await Booking.create({
+        UserID: req.user.id,
+        DestinationID,
+        NumberOfPeople,
+        StartDate: startDate,
+        EndDate: endDate,
+        PriceOf: totalPrice,
+        ItineraryDayID,
+        Status: "pending",
+      });
+
+    destination.AvailableSeats -=
+      NumberOfPeople;
+
+    await destination.save();
 
     return res.status(201).json({
       success: true,
-      message: "Booking created successfully",
+      message:
+        "Booking created successfully",
       data: booking,
+      availableSeats:
+        destination.AvailableSeats,
     });
   } catch (error) {
     next(error);
   }
 };
 
-// ==============================
-// Get All Bookings
-// ==============================
-const getAllBookings = async (req, res, next) => {
+// ======================================================
+// GET ALL BOOKINGS - ADMIN
+// ======================================================
+
+const getAllBookings = async (
+  req,
+  res,
+  next
+) => {
   try {
-    const bookings = await Booking.find()
-      .populate("UserID", "fullName email")
-      .populate({
-        path: "ItineraryDayID",
-        populate: {
-          path: "DestinationID",
-          select: "Name Location",
-        },
-      });
+    const bookings =
+      await Booking.find()
+        .populate(
+          "UserID",
+          "fullName email"
+        )
+        .populate(
+          "DestinationID",
+          "Name Location PricePerPerson"
+        )
+        .populate({
+          path: "ItineraryDayID",
+          select:
+            "DayNumber Title Activities Price DestinationID",
+        });
 
     return res.status(200).json({
       success: true,
@@ -120,25 +168,37 @@ const getAllBookings = async (req, res, next) => {
   }
 };
 
-// ==============================
-// Get Booking By ID
-// ==============================
-const getBookingById = async (req, res, next) => {
+// ======================================================
+// GET BOOKING BY ID - ADMIN
+// ======================================================
+
+const getBookingById = async (
+  req,
+  res,
+  next
+) => {
   try {
-    const booking = await Booking.findById(req.params.id)
-      .populate("UserID", "fullName email")
-      .populate({
-        path: "ItineraryDayID",
-        populate: {
-          path: "DestinationID",
-          select: "Name Location",
-        },
-      });
+    const booking =
+      await Booking.findById(req.params.id)
+        .populate(
+          "UserID",
+          "fullName email"
+        )
+        .populate(
+          "DestinationID",
+          "Name Location PricePerPerson"
+        )
+        .populate({
+          path: "ItineraryDayID",
+          select:
+            "DayNumber Title Activities Price DestinationID",
+        });
 
     if (!booking) {
       return res.status(404).json({
         success: false,
-        message: "Booking not found",
+        message:
+          "Booking not found",
       });
     }
 
@@ -151,32 +211,82 @@ const getBookingById = async (req, res, next) => {
   }
 };
 
-// ==============================
-// Update Booking Status
-// ==============================
-const updateBookingStatus = async (req, res, next) => {
+// ======================================================
+// GET MY BOOKING BY ID - USER
+// ======================================================
+
+const getMyBookingById = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const booking =
+      await Booking.findOne({
+        _id: req.params.id,
+        UserID: req.user.id,
+      })
+        .populate(
+          "DestinationID",
+          "Name Location PricePerPerson"
+        )
+        .populate({
+          path: "ItineraryDayID",
+          select:
+            "DayNumber Title Activities Price DestinationID",
+        });
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Booking not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: booking,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ======================================================
+// UPDATE BOOKING STATUS - ADMIN
+// ======================================================
+
+const updateBookingStatus = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { Status } = req.body;
 
-    const booking = await Booking.findByIdAndUpdate(
-      req.params.id,
-      { Status },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const booking =
+      await Booking.findByIdAndUpdate(
+        req.params.id,
+        { Status },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
 
     if (!booking) {
       return res.status(404).json({
         success: false,
-        message: "Booking not found",
+        message:
+          "Booking not found",
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Booking status updated successfully",
+      message:
+        "Booking status updated successfully",
       data: booking,
     });
   } catch (error) {
@@ -184,28 +294,102 @@ const updateBookingStatus = async (req, res, next) => {
   }
 };
 
-// ==============================
-// Get Booking Stats
-// ==============================
-const getBookingStats = async (req, res, next) => {
+// ======================================================
+// PAY BOOKING - USER
+// ======================================================
+
+const payBooking = async (
+  req,
+  res,
+  next
+) => {
   try {
-    const totalBookings = await Booking.countDocuments();
+    const { id } = req.params;
 
-    const pendingBookings = await Booking.countDocuments({
-      Status: "pending",
-    });
+    const booking =
+      await Booking.findById(id);
 
-    const confirmedBookings = await Booking.countDocuments({
-      Status: "confirmed",
-    });
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Booking not found",
+      });
+    }
 
-    const cancelledBookings = await Booking.countDocuments({
-      Status: "cancelled",
-    });
+    if (
+      booking.UserID.toString() !==
+      req.user.id.toString()
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You are not allowed to pay for this booking",
+      });
+    }
 
-    const completedBookings = await Booking.countDocuments({
-      Status: "completed",
+    if (
+      booking.Status !==
+      "pending"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "This booking cannot be paid for",
+        currentStatus:
+          booking.Status,
+      });
+    }
+
+    // Demo payment
+    booking.Status =
+      "confirmed";
+
+    await booking.save();
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Payment successful and booking confirmed",
+      data: booking,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ======================================================
+// GET BOOKING STATS - ADMIN
+// ======================================================
+
+const getBookingStats = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const totalBookings =
+      await Booking.countDocuments();
+
+    const pendingBookings =
+      await Booking.countDocuments({
+        Status: "pending",
+      });
+
+    const confirmedBookings =
+      await Booking.countDocuments({
+        Status: "confirmed",
+      });
+
+    const cancelledBookings =
+      await Booking.countDocuments({
+        Status: "cancelled",
+      });
+
+    const completedBookings =
+      await Booking.countDocuments({
+        Status: "completed",
+      });
 
     return res.status(200).json({
       success: true,
@@ -222,178 +406,300 @@ const getBookingStats = async (req, res, next) => {
   }
 };
 
-// ==============================
-// Update Booking
-// ==============================
-const updateBooking = async (req, res) => {
+// ======================================================
+// UPDATE BOOKING
+// ======================================================
+
+const updateBooking = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { id } = req.params;
 
-    const booking = await Booking.findById(id);
+    const booking =
+      await Booking.findById(id);
 
     if (!booking) {
       return res.status(404).json({
-        message: "Booking not found",
+        message:
+          "Booking not found",
       });
     }
 
-    if (req.body.NumberOfPeople !== undefined) {
-      if (req.body.NumberOfPeople < 1) {
-        return res.status(400).json({
-          message: "Number of people must be at least 1",
-        });
-      }
+    const oldNumberOfPeople =
+      booking.NumberOfPeople;
 
-      booking.NumberOfPeople = req.body.NumberOfPeople;
-    }
+    const newNumberOfPeople =
+      req.body.NumberOfPeople !==
+      undefined
+        ? Number(
+            req.body.NumberOfPeople
+          )
+        : oldNumberOfPeople;
 
-    if (req.body.StartDate !== undefined) {
-      const startDate = new Date(req.body.StartDate);
-
-      if (isNaN(startDate)) {
-        return res.status(400).json({
-          message: "Invalid StartDate",
-        });
-      }
-
-      booking.StartDate = startDate;
-    }
-
-    if (req.body.EndDate !== undefined) {
-      const endDate = new Date(req.body.EndDate);
-
-      if (isNaN(endDate)) {
-        return res.status(400).json({
-          message: "Invalid EndDate",
-        });
-      }
-
-      booking.EndDate = endDate;
-    }
-
-    if (booking.StartDate > booking.EndDate) {
+    if (
+      newNumberOfPeople < 1
+    ) {
       return res.status(400).json({
-        message: "End date must be after start date",
+        message:
+          "Number of people must be at least 1",
       });
     }
 
-    if (req.body.Status !== undefined) {
-      booking.Status = req.body.Status;
-    }
-
-    const itineraryDay = await ItineraryDay.findById(
-      booking.ItineraryDayID
-    );
-
-    if (!itineraryDay) {
-      return res.status(404).json({
-        message: "Itinerary day not found",
-      });
-    }
-
-    const destination = await Destination.findById(
-      itineraryDay.DestinationID
-    );
+    const destination =
+      await Destination.findById(
+        booking.DestinationID
+      );
 
     if (!destination) {
       return res.status(404).json({
-        message: "Destination not found",
+        message:
+          "Destination not found",
       });
     }
 
-    if (destination.PricePerPerson == null) {
+    const difference =
+      newNumberOfPeople -
+      oldNumberOfPeople;
+
+    if (difference > 0) {
+      if (
+        destination.AvailableSeats <
+        difference
+      ) {
+        return res.status(400).json({
+          message:
+            "Not enough available seats",
+          availableSeats:
+            destination.AvailableSeats,
+        });
+      }
+
+      destination.AvailableSeats -=
+        difference;
+    }
+
+    if (difference < 0) {
+      destination.AvailableSeats +=
+        Math.abs(difference);
+    }
+
+    if (
+      req.body.StartDate !==
+      undefined
+    ) {
+      const startDate =
+        new Date(
+          req.body.StartDate
+        );
+
+      if (isNaN(startDate)) {
+        return res.status(400).json({
+          message:
+            "Invalid StartDate",
+        });
+      }
+
+      booking.StartDate =
+        startDate;
+    }
+
+    if (
+      req.body.EndDate !==
+      undefined
+    ) {
+      const endDate =
+        new Date(
+          req.body.EndDate
+        );
+
+      if (isNaN(endDate)) {
+        return res.status(400).json({
+          message:
+            "Invalid EndDate",
+        });
+      }
+
+      booking.EndDate =
+        endDate;
+    }
+
+    if (
+      booking.StartDate >
+      booking.EndDate
+    ) {
       return res.status(400).json({
-        message: "Destination price is not available",
+        message:
+          "End date must be after start date",
       });
     }
+
+    if (
+      req.body.Status !==
+      undefined
+    ) {
+      booking.Status =
+        req.body.Status;
+    }
+
+    if (
+      destination.PricePerPerson ==
+      null
+    ) {
+      return res.status(400).json({
+        message:
+          "Destination price is not available",
+      });
+    }
+
+    booking.NumberOfPeople =
+      newNumberOfPeople;
 
     booking.PriceOf =
-      destination.PricePerPerson * booking.NumberOfPeople;
+      destination.PricePerPerson *
+      newNumberOfPeople;
+
+    await destination.save();
 
     await booking.save();
 
     return res.status(200).json({
-      message: "Booking updated successfully",
-      booking,
+      success: true,
+      message:
+        "Booking updated successfully",
+      data: booking,
+      availableSeats:
+        destination.AvailableSeats,
     });
   } catch (error) {
-    console.log(error);
-
-    return res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
-// ==============================
-// Delete One Booking
-// ==============================
-const deleteBooking = async (req, res) => {
+// ======================================================
+// DELETE BOOKING
+// ======================================================
+
+const deleteBooking = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { id } = req.params;
 
-    const booking = await Booking.findById(id);
+    const booking =
+      await Booking.findById(id);
 
     if (!booking) {
       return res.status(404).json({
-        message: "Booking not found",
+        message:
+          "Booking not found",
       });
     }
 
-    await Booking.findByIdAndDelete(id);
+    const destination =
+      await Destination.findById(
+        booking.DestinationID
+      );
+
+    if (destination) {
+      destination.AvailableSeats +=
+        booking.NumberOfPeople;
+
+      await destination.save();
+    }
+
+    await Booking.findByIdAndDelete(
+      id
+    );
 
     return res.status(200).json({
-      message: "Booking deleted successfully",
+      success: true,
+      message:
+        "Booking deleted successfully",
     });
   } catch (error) {
-    console.log(error);
-
-    return res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
-// ==============================
-// Batch Delete Bookings
-// ==============================
-const batchDeleteBookings = async (req, res) => {
+// ======================================================
+// BATCH DELETE BOOKINGS
+// ======================================================
+
+const batchDeleteBookings = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { ids } = req.body;
 
-    if (!Array.isArray(ids) || ids.length === 0) {
+    if (
+      !Array.isArray(ids) ||
+      ids.length === 0
+    ) {
       return res.status(400).json({
-        message: "Please provide booking IDs",
+        message:
+          "Please provide booking IDs",
       });
     }
 
-    const result = await Booking.deleteMany({
-      _id: { $in: ids },
-    });
+    const bookings =
+      await Booking.find({
+        _id: { $in: ids },
+      });
+
+    for (
+      const booking of bookings
+    ) {
+      const destination =
+        await Destination.findById(
+          booking.DestinationID
+        );
+
+      if (destination) {
+        destination.AvailableSeats +=
+          booking.NumberOfPeople;
+
+        await destination.save();
+      }
+    }
+
+    const result =
+      await Booking.deleteMany({
+        _id: { $in: ids },
+      });
 
     return res.status(200).json({
-      message: "Bookings deleted successfully",
-      deletedCount: result.deletedCount,
+      success: true,
+      message:
+        "Bookings deleted successfully",
+      deletedCount:
+        result.deletedCount,
     });
   } catch (error) {
-    console.log(error);
-
-    return res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
-// ==============================
-// Export
-// ==============================
+// ======================================================
+// EXPORTS
+// ======================================================
+
 module.exports = {
   createBooking,
   getAllBookings,
   getBookingById,
+  getMyBookingById,
   updateBookingStatus,
+  payBooking,
   getBookingStats,
   updateBooking,
   deleteBooking,
   batchDeleteBookings,
 };
+

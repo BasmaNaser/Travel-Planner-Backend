@@ -39,6 +39,26 @@ const reviewSchema = new mongoose.Schema(
       ref: "Complaint",
       default: null,
     },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+
+    deletedReason: {
+      type: String,
+      default: "",
+    },
+
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+
+    deletedNoticeRead: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

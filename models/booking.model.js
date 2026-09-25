@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema(
@@ -5,6 +6,12 @@ const bookingSchema = new mongoose.Schema(
     UserID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+    },
+
+    DestinationID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Destination",
       required: true,
     },
 
@@ -32,18 +39,8 @@ const bookingSchema = new mongoose.Schema(
 
     Status: {
       type: String,
-      enum: [
-        "pending",
-        "confirmed",
-        "cancelled",
-        "completed",
-      ],
+      enum: ["pending", "confirmed", "cancelled", "completed"],
       default: "pending",
-    },
-    UserID: {  //Aseel
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
     },
 
     ItineraryDayID: {
@@ -54,7 +51,8 @@ const bookingSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 module.exports = mongoose.model("Booking", bookingSchema);
+
