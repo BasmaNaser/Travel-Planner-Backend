@@ -18,23 +18,17 @@ const destinationSchema = new mongoose.Schema(
 
     Image: {
       type: String,
+      default: "",
     },
 
     Category: {
       type: String,
-      // enum: ["Trending", "Best Seller", ""], //Aseel
-      // default: "",
     },
-    Badge: {
-      //Aseel
-      type: String,
-      enum: ["Trending", "Best Seller", ""],
-      default: "",
-    },
-    Image: {
-      type: String,
-      default: "",
-    },
+
+  Badge: {
+  type: String,
+  default: "",
+},
 
     Duration: {
       type: Number,
@@ -64,7 +58,7 @@ const destinationSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 module.exports = mongoose.model("Destination", destinationSchema);

@@ -11,7 +11,9 @@ const {
 } = require("../controllers/destination.controller");
 
 const authentication = require("../middlewares/authMiddleware");
+
 const authorization = require("../middlewares/authorized");
+
 const upload = require("../middlewares/upload");
 
 router.get("/", getAllDestinations);
@@ -28,8 +30,8 @@ router.post(
 
 router.patch(
   "/:id",
-  // authentication,
-  // authorization("admin"),
+  authentication,
+  authorization("admin"),
   upload.single("Image"),
   updateDestination
 );

@@ -1,23 +1,29 @@
+
 const express = require("express");
+
 const router = express.Router();
 
 const authentication = require("../middlewares/authMiddleware");
+
 const authorization = require("../middlewares/authorized");
 
 const {
   createBooking,
   getAllBookings,
   getBookingById,
+  getMyBookingById,
   updateBookingStatus,
+  payBooking,
   getBookingStats,
   updateBooking,
   deleteBooking,
   batchDeleteBookings,
 } = require("../controllers/booking.controller");
 
-// ==============================
-// Create Booking
-// ==============================
+// ======================================================
+// CREATE BOOKING - USER
+// ======================================================
+
 router.post(
   "/",
   authentication,
@@ -25,10 +31,21 @@ router.post(
   createBooking
 );
 
-// ==============================
-// Get All Bookings
-// Admin only
-// ==============================
+// ======================================================
+// PAY BOOKING - USER
+// ======================================================
+
+router.patch(
+  "/:id/pay",
+  authentication,
+  authorization("user"),
+  payBooking
+);
+
+// ======================================================
+// GET ALL BOOKINGS - ADMIN
+// ======================================================
+
 router.get(
   "/",
   authentication,
@@ -36,10 +53,10 @@ router.get(
   getAllBookings
 );
 
-// ==============================
-// Get Booking Stats
-// Admin only
-// ==============================
+// ======================================================
+// GET BOOKING STATS - ADMIN
+// ======================================================
+
 router.get(
   "/stats",
   authentication,
@@ -47,10 +64,21 @@ router.get(
   getBookingStats
 );
 
-// ==============================
-// Get Booking By ID
-// Admin only
-// ==============================
+// ======================================================
+// GET MY BOOKING BY ID - USER
+// ======================================================
+
+router.get(
+  "/user/:id",
+  authentication,
+  authorization("user"),
+  getMyBookingById
+);
+
+// ======================================================
+// GET BOOKING BY ID - ADMIN
+// ======================================================
+
 router.get(
   "/:id",
   authentication,
@@ -58,10 +86,10 @@ router.get(
   getBookingById
 );
 
-// ==============================
-// Update Booking Status
-// Admin only
-// ==============================
+// ======================================================
+// UPDATE BOOKING STATUS - ADMIN
+// ======================================================
+
 router.patch(
   "/:id/status",
   authentication,
@@ -69,28 +97,30 @@ router.patch(
   updateBookingStatus
 );
 
-// ==============================
-// Update Booking
-// ==============================
+// ======================================================
+// UPDATE BOOKING
+// ======================================================
+
 router.patch(
   "/:id",
   authentication,
   updateBooking
 );
 
-// ==============================
-// Batch Delete Bookings
-// IMPORTANT: /batch BEFORE /:id
-// ==============================
+// ======================================================
+// BATCH DELETE BOOKINGS
+// ======================================================
+
 router.delete(
   "/batch",
   authentication,
   batchDeleteBookings
 );
 
-// ==============================
-// Delete One Booking
-// ==============================
+// ======================================================
+// DELETE BOOKING
+// ======================================================
+
 router.delete(
   "/:id",
   authentication,
@@ -98,3 +128,4 @@ router.delete(
 );
 
 module.exports = router;
+
