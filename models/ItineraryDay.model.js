@@ -5,18 +5,25 @@ const itineraryDaySchema = new mongoose.Schema(
     DayNumber: {
       type: Number,
       required: true,
+      min: 1,
     },
 
     Title: {
       type: String,
+      required: true,
+      trim: true,
     },
 
     Activities: {
       type: String,
+      required: true,
+      trim: true,
     },
-     Price: {
+
+    Price: {
       type: Number,
       required: true,
+      min: 0,
     },
 
     DestinationID: {
