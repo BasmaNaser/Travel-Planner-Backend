@@ -17,11 +17,11 @@ const createBooking = async (req, res, next) => {
       DestinationID,
     } = req.body;
 
+    // ItineraryDayID is optional
     if (
       !NumberOfPeople ||
       !StartDate ||
       !EndDate ||
-      !ItineraryDayID ||
       !DestinationID
     ) {
       return res.status(400).json({
@@ -50,17 +50,8 @@ const createBooking = async (req, res, next) => {
       });
     }
 
-    const itineraryDay =
-      await ItineraryDay.findById(ItineraryDayID);
-
-    if (!itineraryDay) {
-      return res.status(404).json({
-        message: "Itinerary day not found",
-      });
-    }
-
-    const destination =
-      await Destination.findById(DestinationID);
+    // Find destination
+    const destination = await Destination.findById(DestinationID);
 
     if (!destination) {
       return res.status(404).json({
@@ -68,70 +59,79 @@ const createBooking = async (req, res, next) => {
       });
     }
 
-    if (
-      itineraryDay.DestinationID.toString() !==
-      DestinationID.toString()
-    ) {
-      return res.status(400).json({
-        message:
-          "Itinerary day does not belong to this destination",
-      });
+    // Check itinerary only if it was provided
+    if (ItineraryDayID) {
+      const itineraryDay =
+        await ItineraryDay.findById(ItineraryDayID);
+
+      if (!itineraryDay) {
+        return res.status(404).json({
+          message: "Itinerary day not found",
+        });
+      }
+
+      if (
+        itineraryDay.DestinationID.toString() !==
+        DestinationID.toString()
+      ) {
+        return res.status(400).json({
+          message:
+            "Itinerary day does not belong to this destination",
+        });
+      }
     }
 
     if (
-      destination.AvailableSeats <
-      NumberOfPeople
+      destination.AvailableSeats < NumberOfPeople
     ) {
       return res.status(400).json({
         message: "Not enough available seats",
-        availableSeats:
-          destination.AvailableSeats,
+        availableSeats: destination.AvailableSeats,
       });
     }
 
-    if (
-      destination.PricePerPerson == null
-    ) {
+    if (destination.PricePerPerson == null) {
       return res.status(400).json({
-        message:
-          "Destination price is not available",
+        message: "Destination price is not available",
       });
     }
 
     const totalPrice =
-      destination.PricePerPerson *
-      NumberOfPeople;
+      destination.PricePerPerson * NumberOfPeople;
 
-    const booking =
-      await Booking.create({
-        UserID: req.user.id,
-        DestinationID,
-        NumberOfPeople,
-        StartDate: startDate,
-        EndDate: endDate,
-        PriceOf: totalPrice,
-        ItineraryDayID,
-        Status: "pending",
-      });
+    // Create booking
+    const bookingData = {
+      UserID: req.user.id,
+      DestinationID,
+      NumberOfPeople,
+      StartDate: startDate,
+      EndDate: endDate,
+      PriceOf: totalPrice,
+      Status: "pending",
+    };
 
-    destination.AvailableSeats -=
-      NumberOfPeople;
+    // Add ItineraryDayID only if it was provided
+    if (ItineraryDayID) {
+      bookingData.ItineraryDayID = ItineraryDayID;
+    }
+
+    const booking = await Booking.create(bookingData);
+
+    destination.AvailableSeats -= NumberOfPeople;
 
     await destination.save();
 
     return res.status(201).json({
       success: true,
-      message:
-        "Booking created successfully",
+      message: "Booking created successfully",
       data: booking,
-      availableSeats:
-        destination.AvailableSeats,
+      availableSeats: destination.AvailableSeats,
     });
+
   } catch (error) {
     next(error);
   }
 };
-
 // ======================================================
 // GET ALL BOOKINGS - ADMIN
 // ======================================================

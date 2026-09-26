@@ -46,7 +46,7 @@ const bookingSchema = new mongoose.Schema(
     ItineraryDayID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ItineraryDay",
-      required: true,
+      required: false,
     },
   },
   {
